@@ -1,0 +1,38 @@
+{{template "base" .}}
+{{define "head"}}
+    <link rel="stylesheet" href=""/>
+{{end}}
+{{define "content"}}
+    {{if eq .MimeType "image/jpeg"}}
+        <img src="{{.FileURL}}" alt="{{.Filename}}">
+    {{else if eq .MimeType "image/png"}}
+        <img src="{{.FileURL}}" alt="{{.Filename}}">
+    {{else if eq .MimeType "image/gif"}}
+        <img src="{{.FileURL}}" alt="{{.Filename}}">
+    {{else if eq .MimeType "video/mp4"}}
+        <video controls width="100%">
+            <source src="{{.FileURL}}" type="video/mp4">
+            Your browser doesn't support video playback.
+        </video>
+    {{else if eq .MimeType "video/webm"}}
+        <video controls width="100%">
+            <source src="{{.FileURL}}" type="video/webm">
+            Your browser doesn't support video playback.
+        </video>
+    {{else if eq .MimeType "video/quicktime"}}
+        <video controls width="100%">
+            <source src="{{.FileURL}}" type="video/quicktime">
+            Your browser doesn't support video playback.
+        </video>
+    {{else if eq .MimeType "application/pdf"}}
+        <embed src="{{.FileURL}}" type="application/pdf" width="100%" height="600px">
+    {{end}}
+
+    <div class="download-section">
+        <a href="{{.FileURL}}" download class="download-btn">
+            Download {{.Filename}}
+        </a>
+    </div>
+
+    <script src=""></script>
+{{end}}

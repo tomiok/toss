@@ -1,0 +1,24 @@
+{{ define "base"}}
+    <!doctype html>
+    <html lang="es">
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
+        {{block "head" .}}
+
+        {{end}}
+        <title>TOSS</title>
+        {{ block "css" .}}
+
+        {{ end }}
+    </head>
+    <body>
+    {{ block "content" . }}
+
+    {{ end }}
+
+
+    {{ block "js" .}}
+    {{ end }}
+    </body>
+    </html>
+{{ end }}

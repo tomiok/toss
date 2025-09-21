@@ -1,0 +1,123 @@
+{{template "base" .}}
+{{define "head"}}
+    <link rel="stylesheet" href="/static/styles.css"/>
+{{end}}
+{{define "content"}}
+    <div class="upload-container">
+        <div class="logo">toss.sh</div>
+        <div class="subtitle">Share files once, then they disappear</div>
+
+        <form id="uploadForm" hx-post="/uploads" hx-encoding="multipart/form-data" hx-target="#result" hx-indicator="#loading"
+              hx-swap="innerHTML">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drop your file here</div>
+                <div class="upload-subtext">or click to browse</div>
+            </div>
+
+            <input type="file" id="fileInput" name="file" accept="*/*" required>
+
+            <div class="file-info" id="fileInfo" style="display: none;">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+            </div>
+
+            <button type="submit" class="upload-btn" id="uploadBtn" style="display: none;">
+                Upload & Get Link
+            </button>
+        </form>
+
+        <div id="loading" class="htmx-indicator">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="result" style="display: block;"></div>
+    </div>
+
+
+<script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const resultLink = document.getElementById('resultLink');
+    const resultUrl = document.getElementById('resultUrl');
+    const copyBtn = document.getElementById('copyBtn');
+
+    let selectedFile = null;
+
+    // Click to browse
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        selectedFile = file;
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+        uploadBtn.style.display = 'block';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Copy to clipboard
+    async function copyToClipboard(btn) {
+        const resultUrl = btn.previousElementSibling; // el div con la URL
+        try {
+            await navigator.clipboard.writeText(resultUrl.textContent);
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = 'Copy Link';
+            }, 2000);
+        } catch (err) {
+            const range = document.createRange();
+            range.selectNodeContents(resultUrl);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            btn.textContent = 'Text selected - Ctrl+C to copy';
+            setTimeout(() => {
+                btn.textContent = 'Copy Link';
+                selection.removeAllRanges();
+            }, 3000);
+        }
+    }
+</script>
+{{end}}
