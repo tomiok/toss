@@ -1,4 +1,4 @@
-ARG  BUILDER_IMAGE=golang:1.23.4-alpine
+ARG  BUILDER_IMAGE=golang:1.24.4-alpine
 ############################
 # STEP 1 build executable binary
 ############################
@@ -19,7 +19,7 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     "${USER}"
-WORKDIR $GOPATH/src/news/
+WORKDIR $GOPATH/src/toss/
 # use modules
 COPY go.mod .
 ENV GO111MODULE=on
@@ -30,7 +30,7 @@ COPY . .
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags='-w -s -extldflags "-static"' -a \
-    -o /go/bin/news ./cmd/api/main
+    -o /go/bin/toss ./cmd/api/main
 ############################
 # STEP 2 build a small image
 ############################
@@ -40,7 +40,7 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
-COPY --from=builder /go/bin/news /go/bin/news
+COPY --from=builder /go/bin/toss /go/bin/toss
 
 COPY static /static/
 COPY migrations /migrations/
@@ -52,4 +52,4 @@ USER appuser:appuser
 EXPOSE 9000
 # Run the binary.
 
-ENTRYPOINT ["/go/bin/news"]
+ENTRYPOINT ["/go/bin/toss"]
